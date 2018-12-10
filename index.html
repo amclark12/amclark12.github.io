@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sprint4</title>
+    <title>Space Babe</title>
     <script src=phaser.min.js></script>
     
     <script>
@@ -23,22 +23,29 @@
         create:function(){
             game.add.tileSprite(0,0,1000,1000,'sky');
             game.add.sprite(190, 80,'start');
-            game.add.text(190,400, "Enter Game Size: Small-1, Medium-2, Large-3", {font:"16px monospace", fill:"#ffffff", align:"center"});
+            //game.add.text(190,400, "Enter Game Size: Small-1, Medium-2, Large-3", {font:"16px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(242,450, "Press Spacebar to Continue", {font:"20px monospace", fill:"#ffffff", align:"center"});
             music = game.add.audio("jupiter");
             music.play();
+            
+            game.add.text(240, 470, "Press v at any time to stop music",{font:"16px monospace", fill:"#ff0066", align:"center"});
+            
+            
         },
         update:function(){
-            this.key1 = game.input.keyboard.addKey(Phaser.Keyboard.ONE);
+            /*this.key1 = game.input.keyboard.addKey(Phaser.Keyboard.ONE);
             this.key2 = game.input.keyboard.addKey(Phaser.Keyboard.TWO);
-            this.key3 = game.input.keyboard.addKey(Phaser.Keyboard.THREE);
-        
-            if (this.key1.isDown){
+            this.key3 = game.input.keyboard.addKey(Phaser.Keyboard.THREE);*/
+            this.spacebar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+            
+            if (this.spacebar.isDown){
                 dim = 1
                 game.state.start('tut1');
             }
-            else if (this.key2.isDown){
-                dim = 2
-                game.state.start('tut1');
+            this.vkey = game.input.keyboard.addKey(Phaser.Keyboard.V);
+            
+            if (this.vkey.isDown){
+                music.stop();
             }
         }
     }
@@ -58,10 +65,16 @@
             game.add.text(80,240, "Press Space to continue", {font:"18px monospace", fill:"#ff0066", align:"center"});
         },
         update:function(){
+            this.vkey = game.input.keyboard.addKey(Phaser.Keyboard.V);
+            
+            if (this.vkey.isDown){
+                music.stop();
+            }
             this.spacebar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
             if (this.spacebar.isDown){
                 game.state.start('tut2');
             }
+            
         }
         
     }
@@ -82,6 +95,11 @@
         },
         update:function(){
             this.spacebar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+            this.vkey = game.input.keyboard.addKey(Phaser.Keyboard.V);
+            
+            if (this.vkey.isDown){
+                music.stop();
+            }
             if (this.spacebar.isDown){
                 game.state.start('state1');
             }
@@ -106,15 +124,17 @@
         spriteList[j] = x
     }
     var music;
-    var fuel = 100000
-    var resources = 0
-    var ship_speed = 400
+    var fuel = 5000;
+    var resources = 0;
+    var ship_speed = 400;
     var state1 = {
         preload:function(){
             game.load.image('sky', 'assets/starfield.png');
             game.load.image('space', 'assets/Space.png');
-            game.load.image('ui', 'assets/ui.png')
             game.load.image('earth', 'assets/Earth3.png');
+            game.load.image('ui', 'assets/ui.png');
+            game.load.audio('entry', 'enter_planet.wav');
+
             for (i=5; i<15; i++) {
                 i = i.toString()
                 image_name = 'p' + i
@@ -134,9 +154,10 @@
             tiles = game.add.group();
             planets = game.add.group();
             planets.enableBody = true;
+            
             UI = game.add.sprite(2500,2500, 'ui')
             UI.fixedToCamera = true
-            UI.cameraOffset.setTo(0, 0)
+            UI.cameraOffset.setTo(0, 480)
             UI.scale.setTo(.4,.4);
             
             x_coordinate = game.world.centerX-2600
@@ -169,13 +190,18 @@
              
         },
         update:function(){
-            //  Reset the players velocity (movement)
+                    //  Reset the players velocity (movement)
+            this.vkey = game.input.keyboard.addKey(Phaser.Keyboard.V);
+            
+            if (this.vkey.isDown){
+                music.stop();
+            }
             this.spacebar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
             this.game.physics.arcade.overlap(player, planets, enterPlanet, null, this); //check collision between player and planets
             
-            player.body.angularVelocity = 5;
-            game.debug.text("Fuel: " + fuel, 190, 30, "#40F977");
-            game.debug.text("Resources: " + resources, 190, 50, "#40F977");
+            player.body.angularVelocity = 0;
+            game.debug.text("Fuel: " + fuel, 190, 510, "#ff0");
+            game.debug.text("Resources: " + resources, 190, 530, "#ff0");
             
             if(game.input.keyboard.isDown(Phaser.Keyboard.UP) && game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
                 fuel += -1
@@ -218,20 +244,20 @@
                 
             }
             
-           
             //end of ship controls
             if (fuel < 0){
                 game.state.start("state10")
             }
             
             function enterPlanet (player, planet) {
+                game.load.audio('entry', 'enter_planet.wav');
                 sprite = (planet.key).toString()
                 if (checkPlanet[sprite] != false){
-                    game.debug.text("Press space", 190, 70, "#00FFFC");
-                    game.debug.text("to visit", 200, 90, "#00FFFC");
+                    game.debug.text("Press space", 190, 550, "#00FFFC");
+                    game.debug.text("to visit", 200, 570, "#00FFFC");
                 } else {
-                    game.debug.text("Planet already", 190, 70, "#00FFFC");
-                    game.debug.text("visited", 220, 90, "#00FFFC");
+                    game.debug.text("Planet already", 190, 550, "#00FFFC");
+                    game.debug.text("visited", 220, 570, "#00FFFC");
                 }
                 
                 if (this.spacebar.isDown){
@@ -239,7 +265,9 @@
                     player_y = player.y
                     //Travel to state depending on planet sprite
                     if (checkPlanet[sprite] != false){
-                        checkPlanet[sprite] = false
+                        checkPlanet[sprite] = false;
+                        sound = game.add.audio('entry');
+                        sound.play();
                         game.state.start(sprite);
                     }
                 }
@@ -343,9 +371,11 @@
         preload:function(){
             game.load.image('sky', 'assets/starfield.png');
             game.load.image('ground', 'assets/platform.png');
-            game.load.image('babe', 'assets/babe.png');
+            game.load.spritesheet('babe', 'assets/babeSprite.png', 480, 314);
             game.load.image('tool', 'assets/tool.png');
             game.load.image('wrench','assets/wrench.png');
+            game.load.image('ui', 'assets/ui.png')
+            game.load.audio('pick_up','pick_up.wav');
             
         },
         
@@ -378,6 +408,10 @@
             
             player = game.add.sprite(10,1600, 'babe');
             player.scale.setTo(0.25,0.25);
+            
+            player.animations.add('left',[0,1,2,3], 10, true);
+            player.animations.add('right',[5,6,7,8],10,true);
+            
             game.camera.follow(player);
             game.physics.arcade.enable(player);
             
@@ -451,6 +485,11 @@
             wrenches.enableBody = true;
             //wrenches.scale.setTo(0.5,0.5);
             
+            UI = game.add.sprite(2500,2500, 'ui')
+            UI.fixedToCamera = true
+            UI.cameraOffset.setTo(0, 0)
+            UI.scale.setTo(.2,.2);
+            
 
             for (var i = 0; i < 5; i++)
             {
@@ -505,11 +544,18 @@
             {
                 //  Move to the left
                 player.body.velocity.x = -200;
+                player.animations.play('left', true);
             }
             else if (cursors.right.isDown)
             {
                 //  Move to the right
                 player.body.velocity.x = 200;
+                player.animations.play('right', true);
+            }
+            else{
+                player.animations.stop('left');
+                player.animations.stop('right');
+                player.frame = 4;
             }
 
             //  Allow the player to jump if they are touching the ground
@@ -520,8 +566,10 @@
             
             function collect (player, wrench) {
     
-                // Removes the pineapple from the screen
+                // Removes the wrench from the screen
                 wrench.destroy();
+                tool_sound = game.add.audio('pick_up');
+                tool_sound.play();
 
                 //  Add and update the score
                 score += 10;
@@ -531,6 +579,8 @@
             
             function collect2 (player, tool){
                 tool.destroy();
+                tool_sound = game.add.audio('pick_up');
+                tool_sound.play();
                 score+=50;
                 /*
                 scoreText.text = 'Score: '+score+' out of 200';
@@ -542,7 +592,7 @@
             
             if (timer.running) {
                 console.log(score);
-                game.debug.text(this.formatTime(Math.round((timerEvent.delay - timer.ms) / 1000)), 15, 30, "#ff0");
+                game.debug.text(this.formatTime(Math.round((timerEvent.delay - timer.ms) / 1000)), 105, 30, "#ff0");
                 if (score == 200){
                     timer.stop();
                     game.state.start('state6');
@@ -648,7 +698,9 @@
             game.load.image('ship', 'assets/ship.png');
             game.load.image('turret', 'assets/bomb.png');
             game.load.image('p9', 'assets/planet9.png');
+            game.load.image('ui', 'assets/ui.png');
             game.load.audio("jupiter", "jupiter.m4a");
+            game.load.audio('explode','explode.wav');
             
         },
         
@@ -688,6 +740,11 @@
             game.physics.arcade.enable(player);
             player.body.collideWorldBounds = true;
             
+            UI = game.add.sprite(2500,2500, 'ui')
+            UI.fixedToCamera = true
+            UI.cameraOffset.setTo(0, 0)
+            UI.scale.setTo(.3,.3);
+            
             cursors = game.input.keyboard.createCursorKeys();           
         },
         update:function(){
@@ -722,6 +779,8 @@
                 game.state.start('state6');
             }
             function explode (player, bomb) {
+                explosion = game.add.audio('explode');
+                explosion.play();
                 game.state.start('state9');
             }
             
@@ -729,8 +788,9 @@
                 if (((timerEvent.delay - timer.ms) / 1000) < 1){
                     game.state.start('state9');
                 }
-
-                game.debug.text("Time Remaining: " + Math.round((timerEvent.delay - timer.ms) / 1000), 15, 30, "#ff0");
+                
+                game.debug.text("Countdown:", 150, 30, "#ff0")
+                game.debug.text(Math.round((timerEvent.delay - timer.ms) / 1000) + "s", 150, 50, "#ff0");
             } 
             
             
@@ -755,7 +815,7 @@
             this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         
             if (this.spaceKey.isDown){
-                game.state.start('state1');
+                game.state.start('state8');
             }
         }
     }
@@ -771,9 +831,17 @@
             
             game.add.text(350,420,"Game Over",{font:"20px monospace", fill:"#ff0000", align:"center"});
             
-            game.add.text(350, 440, "Refresh to try again",{font:"20px monospace", fill:"#ff0000", align:"center"});
+            game.add.text(350, 440, "Press space to restart",{font:"20px monospace", fill:"#ff0000", align:"center"});
         
         },
+        update:function(){
+            this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        
+            if (this.spaceKey.isDown){
+                music.stop();
+                game.state.start('state0');
+            }
+        }
     }
     
     ////////////////////////////////////////////////////////////////////////////////////////////
@@ -812,6 +880,7 @@
             game.load.image('bullet', 'assets/Bullet.png');
             game.load.image('p9', 'assets/planet9.png');
             game.load.audio("jupiter", "jupiter.m4a");
+            game.load.audio('shot', 'shot.wav');
             
         },
         create:function(){
@@ -866,6 +935,9 @@
             turret4 = game.add.sprite(Math.floor(Math.random() * 650 + 50), 1500, 'turret')
             turret4.anchor.setTo(0.5,0.5);
             turret4.scale.setTo(0.3,0.3);
+            
+            
+            
             
             checkpoints = game.add.group();
             checkpoints.enableBody = true;
@@ -929,6 +1001,8 @@
             }
             
             function hitBullet (player, bullet) {
+                shot_at = game.add.audio('shot');
+                shot_at.play();
                 game.state.start('turretfail');
             }
             
@@ -1094,15 +1168,41 @@
             
         }
     }
+    
+    var state15a = {
+        preload:function(){
+            game.load.image('engineIntro', 'assets/eIntro.png');
+            
+        },
+        create:function(){
+            screen = game.add.sprite(0,0,'engineIntro');
+            screen.scale.setTo(0.5, 0.5);
+            game.add.text(80,95, "Uh oh! Looks like we've got a problem", {font:"14px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(80,145, "You're gonna have to check under the", {font:"14px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(80,165, "hood to see what's gone wrong", {font:"14px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(80,215, "Press the spacebar to get out and go to", {font:"14px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(80,235, "the control panel", {font:"14px monospace", fill:"#ffffff", align:"center"});
         
-    var state15 = {
+        },
+        update:function(){
+            this.spacebar = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+            if (this.spacebar.isDown){
+                game.state.start('state15b');
+                
+            }
+        }
+        
+    }
+    
+    
+    var state15b = {
         preload:function(){
             game.load.image('engine_1', 'assets/engine_closed_door.png');
             
         },
         create:function(){
             game.add.sprite(0,0,'engine_1');
-            game.add.text(230,40, "Press P to pull the latch and open the door.", {font:"20px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(230,40, "Now press P to pull the latch and open the door.", {font:"16px monospace", fill:"#ffffff", align:"center"});
             
             var openKey = game.input.keyboard.addKey(Phaser.Keyboard.P);
         
@@ -1124,9 +1224,9 @@
         },
         create:function(){
             game.add.sprite(0,0,'engine_2');
-            game.add.text(260,30, "Looks like we've got some wire damage.", {font:"15px monospace", fill:"#ffffff", align:"center"});
-            game.add.text(280,50, "We'll have to repair before we can get going again.", {font:"15px monospace", fill:"#ffffff", align:"center"});
-            game.add.text(300,70, "First, press W to pull out your space wrench.", {font:"15px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(250,25, "Alright, it looks like we've got some wire damage.", {font:"16px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(260,50, "We'll have to repair before we can get going again.", {font:"16px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(250,75, "First, press W to pull out your space wrench.", {font:"16px monospace", fill:"#ffffff", align:"center"});
             
             var wrenchKey = game.input.keyboard.addKey(Phaser.Keyboard.W);
         
@@ -1164,8 +1264,8 @@
         
             counter = 0;
             
-            game.add.text(280,40, "Now, hover over the orange dial", {font:"18px monospace", fill:"#ffffff", align:"center"});
-            game.add.text(300,60, "and press R repeatedly to tighten it.", {font:"18px monospace", fill:"#ffffff", align:"center"});    
+            game.add.text(290,35, "Now hover over the orange dial and", {font:"16px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(290,60, "press R repeatedly to tighten it.", {font:"16px monospace", fill:"#ffffff", align:"center"});    
         },
         update:function(){
             
@@ -1191,15 +1291,16 @@
                 
             }
             
-            if (counter > 50){
-                game.add.text(100,210, "Okay now press s to pull out your soldering gun.", {font:"18px monospace", fill:"#ffffff", align:"center"});
+            if (counter >= 30){
+                game.add.text(190,460, "Okay now press S to pull out your soldering gun.", {font:"16px monospace", fill:"#ffffff", align:"center"});
                 
+                if (game.input.keyboard.isDown(Phaser.Keyboard.S)){
+                game.state.start('state18');
+            }
                 
             }
             
-            if (game.input.keyboard.isDown(Phaser.Keyboard.S)){
-                game.state.start('state18');
-            }
+            
         }
         }
     
@@ -1232,8 +1333,8 @@
             dot = game.add.sprite(240,300,'circle');
             dot.inputEnabled = true;
             
-            game.add.text(300,30, "Now you're ready to zap the wire damage", {font:"18px monospace", fill:"#ffffff", align:"center"});
-            game.add.text(320,50, "and after that you should be good to go.", {font:"18px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(290,30, "Now you're ready to zap the wire damage", {font:"16px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(290,50, "and then you should be good to go.", {font:"16px monospace", fill:"#ffffff", align:"center"});
         },
         
         
@@ -1264,7 +1365,7 @@
         },
         create:function(){
             game.add.sprite(0,0,'engine_4');
-            game.add.text(400,40, "Press C to close the door", {font:"20px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(290,40, "Excellent work! Press C to close the door", {font:"16px monospace", fill:"#ffffff", align:"center"});
             
             
             var closeKey = game.input.keyboard.addKey(Phaser.Keyboard.C);
@@ -1284,7 +1385,7 @@
         },
         create:function(){
             game.add.sprite(0,0,'engine_1');
-            game.add.text(300,40, "Press the Spacebar to go back to space.", {font:"18px monospace", fill:"#ffffff", align:"center"});
+            game.add.text(290,40, "Now press the Spacebar to go back to space.", {font:"16px monospace", fill:"#ffffff", align:"center"});
             
         },
         update:function(){
@@ -1323,7 +1424,7 @@
     }
 
     
-    
+    ////////////////////////////////////////////////////////////////////////////////////////////////////// beam turret planet ///////////////////////////////////////////////////////////////////////
     var state21 = {
         preload:function(){
             game.load.image('sky', 'assets/starfield.png');
@@ -1356,6 +1457,7 @@
             game.load.image('bullet', 'assets/Bullet2.png');
             game.load.image('p14', 'assets/planet14.png');
             game.load.audio("jupiter", "jupiter.m4a");
+            game.load.audio('shot', 'shot.wav');
             
         },
         create:function(){
@@ -1475,6 +1577,8 @@
             
             function hitBullet (player, bullet) {
                 game.state.start('turret2fail');
+                shot_at = game.add.audio('shot');
+                shot_at.play();
             }
             
             
@@ -1525,13 +1629,15 @@
     var state23 = {
         preload:function(){
             game.load.image('space', 'assets/starfield.png');
-            game.load.image('ship', 'assets/ship.png');
+            //game.load.image('ship', 'assets/ship.png');
+            game.load.spritesheet('ship', 'assets/ship_sheet.png', 100, 59);
             game.load.image('turret', 'assets/turret.png');
             game.load.image('bullet', 'assets/Bullet.png');
             game.load.image('laser', 'assets/laser.png');
+            game.load.image('ui', 'assets/ui.png')
             game.load.image('boss', 'assets/Boss.png');
             game.load.audio("jupiter", "jupiter.m4a");
-            
+            game.load.audio('defeat','defeat.wav');
         },
         create:function(){
             //adding worl bounds and tile group for hexagons
@@ -1603,6 +1709,11 @@
             BossSprite.enableBody = true
             game.physics.arcade.enable(BossSprite);
             
+            UI = game.add.sprite(2500,2500, 'ui')
+            UI.fixedToCamera = true
+            UI.cameraOffset.setTo(0, 0)
+            UI.scale.setTo(.3,.3);
+            
             player = game.add.sprite(700,1900,'ship');
             player.enableBody = true
             game.camera.follow(player);
@@ -1620,8 +1731,8 @@
         },
         update:function(){
             //  Reset the players velocity (movement)
-            game.debug.text("Fuel: " + fuel, 15, 30, "#ff0");
-            game.debug.text("Boss Health: " + bossHealth, 15, 50, "#ff0");
+            game.debug.text("Fuel: " + fuel, 140, 30, "#ff0");
+            game.debug.text("Boss: " + bossHealth + " HP", 140, 50, "#ff0");
             
             game.physics.arcade.overlap(weapon1.bullets, player, hitBullet, null, this)
             game.physics.arcade.overlap(weapon2.bullets, player, hitBullet, null, this)
@@ -1647,26 +1758,48 @@
             
             player.body.velocity.x = 0;
             player.body.velocity.y = 0;
+            player.body.angularVelocity = 0;
             
 
-            if (cursors.left.isDown)
-            {
-                //  Move to the left
-                player.body.velocity.x = -600;
+            if(game.input.keyboard.isDown(Phaser.Keyboard.UP) && game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
+                fuel += -1
+                player.frame = 1;
+                player.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(player.angle - 90, ship_speed));
+                player.body.angularVelocity = -200;
             }
-            else if (cursors.right.isDown)
-            {
-                //  Move to the right
-                player.body.velocity.x = 600;
+            else if(game.input.keyboard.isDown(Phaser.Keyboard.UP) && game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
+                fuel += -1
+                player.frame = 2;
+                player.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(player.angle - 90, ship_speed));
+                player.body.angularVelocity = 200;
             }
-            
-            if (cursors.up.isDown)
-            {
-                player.body.velocity.y = -600;
+            else if(game.input.keyboard.isDown(Phaser.Keyboard.LEFT)){
+                player.frame = 3;
+                player.body.velocity.x = 0;
+                player.body.velocity.y = 0;
+                player.body.angularVelocity = -200;
             }
-            else if (cursors.down.isDown)
-            {
-                player.body.velocity.y = 600;
+            else if(game.input.keyboard.isDown(Phaser.Keyboard.RIGHT)){
+                player.frame = 4;
+                player.body.velocity.x = 0;
+                player.body.velocity.y = 0;
+                player.body.angularVelocity = 200;
+            }
+            else if(game.input.keyboard.isDown(Phaser.Keyboard.UP)){
+                fuel += -1
+                player.frame = 0;
+                player.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(player.angle - 90, ship_speed));
+            }
+            else if(game.input.keyboard.isDown(Phaser.Keyboard.DOWN)){
+                player.frame = 5;
+                player.body.velocity.copyFrom(game.physics.arcade.velocityFromAngle(player.angle + 270, -ship_speed));
+            }
+            else{
+                player.frame = 5;
+                player.body.angularVelocity = 0;
+                player.body.velocity.x = 0;
+                player.body.velocity.y = 0;
+                
             }
             
             function hitBullet (player, bullet) {
@@ -1684,6 +1817,8 @@
             }
             
             if (bossHealth < 1 ) {
+                defeated = game.add.audio('defeat');
+                defeated.play();
                 game.state.start('state25');
             }
             
@@ -1755,9 +1890,10 @@
     var end = {
         preload:function(){
             game.load.image('sky', 'assets/starfield.png');
-            game.load.image('e1', 'assets/Earth.png');
-            game.load.image('e2', 'assets/Earth2.png');
+            game.load.image('e2', 'assets/Earth.png');
+            game.load.image('e1', 'assets/Earth2.png');
             game.load.image('e3', 'assets/Earth3.png');
+            game.load.audio('end_music', 'Airship Serenity.mp3');
             
         },
         create:function(){
@@ -1768,8 +1904,11 @@
                 message = "You collected a considerable amount of resources \n Your planet is well on the road to recovery!"
             }
             else if (resources >= 50){
+                music.stop();
+                end_music = game.add.audio('end_music');
+                end_music.play();
                 end_planet = "e2"
-                message = "You collected an incredible amount of resources! \n Your planet prospers greatly from your efforts.\n Press spacebar to end game and return home"
+                message = "You collected an incredible amount of resources! \n Your planet prospers greatly from your efforts.\n Press spacebar to end the game"
             }
             var earth = game.add.sprite(10,10,end_planet)
             earth.scale.setTo(.4,.4)
@@ -1785,17 +1924,42 @@
             if (this.spaceKey.isDown){
                 game.state.start('end');
                 if (resources >=50){
-                    game.state.start('state0');
+                    game.state.start('credits');
                 }
             }
             
-            if (this.escKey.isDown){
+            else if (this.escKey.isDown){
+                end_music.stop();
                 game.state.start('state1');
             }
             
         }
     }
     
+    var credits = {
+        preload:function(){
+            game.load.image('sky', 'assets/starfield.png');
+            
+        },
+        create:function(){
+            game.add.tileSprite(0,0,1000,1000,'sky');
+            game.add.text(300,80, "Credits", {font:"40px monospace", fill:"#ccffff", align:"center"});
+            game.add.text(150,150, "Developers and Artists: Angelica Lopez \n                      Austin Clark \n                    Evan Duncan", {font:"20px monospace", fill:"#ccffff", align:"center"});
+            game.add.text(150,230, "Producer:               Paul Toprac", {font:"20px monospace", fill:"#ccffff", align:"center"});
+            game.add.text(160,350,"Press Space to Restart Game",{font:"25px monospace", fill:"#ccffff", align:"center"});
+        
+        },
+        update:function(){
+            this.spaceKey = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        
+            if (this.spaceKey.isDown){
+                end_music.stop();
+                game.state.start('state0');
+                resources = 0;
+                fuel = 5000;
+            }
+        }
+    }
     
     
     //start the game
@@ -1821,7 +1985,8 @@
     game.state.add('p10',state14);
     game.state.add('turretfail',turretfail);
     game.state.add('earth', earth);
-    game.state.add('p13',state15);
+    game.state.add('p13',state15a);
+    game.state.add('state15b', state15b);
     game.state.add('state16', state16);
     game.state.add('state17',state17);
     game.state.add('state18', state18);
@@ -1835,6 +2000,8 @@
     game.state.add('turret2fail',turret2fail);
     game.state.add('p5',wormhole);
     game.state.add('end', end);
+    game.state.add('credits', credits)
+    
     
     game.state.start('state0');
 
